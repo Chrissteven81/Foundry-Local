@@ -72,6 +72,13 @@ public class ModelVariant : IModel
                                              .ConfigureAwait(false);
     }
 
+    public async Task LoadAsync(IReadOnlyDictionary<string, string>? options, CancellationToken? ct = null)
+    {
+        await Utils.CallWithExceptionHandling(() => _modelLoadManager.LoadAsync(Id, options, ct),
+                                              "Error loading model", _logger)
+                                             .ConfigureAwait(false);
+    }
+
     public async Task UnloadAsync(CancellationToken? ct = null)
     {
         await Utils.CallWithExceptionHandling(() => _modelLoadManager.UnloadAsync(Id, ct),

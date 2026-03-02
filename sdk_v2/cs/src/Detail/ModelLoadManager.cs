@@ -41,22 +41,47 @@ internal sealed class ModelLoadManager : IModelLoadManager, IDisposable
         }
     }
 
-    public async Task LoadAsync(string modelId, CancellationToken? ct = null)
+    public Task LoadAsync(string modelId, CancellationToken? ct = null)
+        => LoadAsync(modelId, options: null, ct);
+
+    public async Task LoadAsync(
+        string modelId,
+        IReadOnlyDictionary<string, string>? options,
+        CancellationToken? ct = null)
     {
         if (_externalServiceUrl != null)
         {
-            await WebLoadModelAsync(modelId, ct).ConfigureAwait(false);
+            await WebLoadModelAsync(modelId, options, ct).ConfigureAwait(false);
             return;
         }
 
-        var request = new CoreInteropRequest { Params = new() { { "Model", modelId } } };
+        var @params = options is null || options.Count == 0
+                        ? new Dictionary<string, string>(capacity: 1)
+                        : new Dictionary<string, string>(capacity: options.Count + 1);
+
+        if (options != null)
+        {
+            foreach (var kv in options)
+            {
+                @params.Add(kv.Key, kv.Value);
+            }
+        }
+
+        if (@params.ContainsKey("Model"))
+        {
+            throw new ArgumentException("options must not contain key 'Model'.", nameof(options));
+        }
+
+        @params["Model"] = modelId;
+
+        var request = new CoreInteropRequest { Params = @params };
+
         var result = await _coreInterop.ExecuteCommandAsync("load_model", request, ct).ConfigureAwait(false);
         if (result.Error != null)
         {
             throw new FoundryLocalException($"Error loading model {modelId}: {result.Error}");
         }
 
-        // currently just a 'model loaded successfully' message
         _logger.LogInformation("Model {ModelId} loaded successfully: {Message}", modelId, result.Data);
     }
 
@@ -116,17 +141,16 @@ internal sealed class ModelLoadManager : IModelLoadManager, IDisposable
         return modelList ?? [];
     }
 
-    private async Task WebLoadModelAsync(string modelId, CancellationToken? ct = null)
+    private Task WebLoadModelAsync(string modelId, CancellationToken? ct = null) => WebLoadModelAsync(modelId, options: null, ct);
+
+    private async Task WebLoadModelAsync(string modelId, IReadOnlyDictionary<string, string>? options, CancellationToken? ct = null)
     {
-        var queryParams = new Dictionary<string, string>
-        {
-            // { "timeout", ... }
-        };
+        options ??= new Dictionary<string, string>();
 
         var uriBuilder = new UriBuilder(_externalServiceUrl!)
         {
             Path = $"models/load/{modelId}",
-            Query = string.Join("&", queryParams.Select(kvp =>
+            Query = string.Join("&", options.Select(kvp =>
                 $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"))
         };
 

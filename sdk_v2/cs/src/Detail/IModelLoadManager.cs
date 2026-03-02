@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 internal interface IModelLoadManager
 {
     internal abstract Task LoadAsync(string modelName, CancellationToken? ct = null);
+    internal abstract Task LoadAsync(string modelName, IReadOnlyDictionary<string, string>? options, CancellationToken? ct = null);
     internal abstract Task UnloadAsync(string modelName, CancellationToken? ct = null);
     internal abstract Task<string[]> ListLoadedModelsAsync(CancellationToken? ct = null);
 }

@@ -33,7 +33,7 @@ public class Model : IModel
         _logger = logger;
 
         Alias = modelVariant.Alias;
-        Variants = new() { modelVariant };
+        Variants = [modelVariant];
 
         // variants are sorted by Core, so the first one added is the default
         SelectedVariant = modelVariant;
@@ -102,6 +102,11 @@ public class Model : IModel
     public async Task LoadAsync(CancellationToken? ct = null)
     {
         await SelectedVariant.LoadAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task LoadAsync(IReadOnlyDictionary<string, string>? options, CancellationToken? ct = null)
+    {
+        await SelectedVariant.LoadAsync(options, ct).ConfigureAwait(false);
     }
 
     public async Task<OpenAIChatClient> GetChatClientAsync(CancellationToken? ct = null)

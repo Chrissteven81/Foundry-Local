@@ -43,6 +43,15 @@ public interface IModel
     Task LoadAsync(CancellationToken? ct = null);
 
     /// <summary>
+    /// Asynchronously loads data or resources using the specified options.
+    /// </summary>
+    /// <param name="options">A read-only dictionary containing key-value pairs that specify options for the load operation. May be null to
+    /// use default options.</param>
+    /// <param name="ct">An optional cancellation token that can be used to cancel the load operation.</param>
+    /// <returns>A task that represents the asynchronous load operation.</returns>
+    Task LoadAsync(IReadOnlyDictionary<string, string>? options, CancellationToken? ct = null);
+
+    /// <summary>
     /// Remove the model from the local cache.
     /// </summary>
     /// <param name="ct">Optional cancellation token.</param>
