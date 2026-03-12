@@ -62,6 +62,7 @@
         <DefineConstants Condition="('$(IsOSX)'=='true')">$(DefineConstants);IS_OSX</DefineConstants>
         <DefineConstants Condition="('$(IsLinux)'=='true')">$(DefineConstants);IS_LINUX</DefineConstants>
         <AnalysisLevel>latest-recommended</AnalysisLevel>
+        <Version>0.8.2.2-HP.$(BuildTimestamp)</Version>
     </PropertyGroup>
 
     <Target Name="DumpValues" BeforeTargets="Build">
