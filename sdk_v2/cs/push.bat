@@ -1,0 +1,1 @@
+dotnet nuget push .\src\bin\release\Microsoft.AI.Foundry.Local.WinML.0.5.0-dev.local.20260312100122.nupkg --source HP-Incubation --api-key AzureDevOps --interactive
